@@ -16,6 +16,9 @@ import static java.lang.StringTemplate.STR;
  * Developed and tested with the WikiNews dataset.
  */
 public class Runner {
+
+    public static final String RUNNER_APP_NAME = "bsp-search-runner";
+
     static Index mkIndex(Dataset dataset, Integer numTrees, Integer maxSize) {
         return mkIndex(dataset, numTrees, maxSize, true);
     }
@@ -38,6 +41,7 @@ public class Runner {
 
     private static CommandLine cli(String[] args) {
         Options options = new Options();
+        Option help = new Option("h", "help", false, "print this message");
         Option input = new Option("i", "input", true, "Path to the dataset");
         Option numTrees = new Option("n", "num-trees", true, "Number of trees");
         Option maxNodeSize = new Option("m", "max-node-size", true, "Maximum node size");
@@ -46,7 +50,6 @@ public class Runner {
         Option numQueryVectors = new Option("q", "num-query-vectors", true, "Number of query vectors");
         Option numResults = new Option("k", "num-results", true, "Number of results to return");
 
-        input.setRequired(true);
         numTrees.setType(Integer.class);
         maxNodeSize.setType(Integer.class);
         deduplicate.setType(Boolean.class);
@@ -54,6 +57,7 @@ public class Runner {
         numQueryVectors.setType(Integer.class);
         numResults.setType(Integer.class);
 
+        options.addOption(help);
         options.addOption(input);
         options.addOption(numTrees);
         options.addOption(maxNodeSize);
@@ -68,14 +72,18 @@ public class Runner {
 
         try {
             cmd = parser.parse(options, args);
+            if (cmd.hasOption("help")) {
+                formatter.printHelp(RUNNER_APP_NAME, options);
+                System.exit(0);
+            }
         } catch (ParseException e) {
             System.out.println(e.getMessage());
-            formatter.printHelp("bsp-search-runner", options);
+            formatter.printHelp(RUNNER_APP_NAME, options);
 
             System.exit(1);
-        } finally {
-            return cmd;
         }
+
+        return cmd;
     }
 
     public static void main(String[] args) {
